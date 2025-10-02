@@ -57,18 +57,27 @@ def index():
 def chat():
     msg = request.form.get("msg", "")
     print(f"Received input: {msg}")
+
     try:
+        # Normalize input: lowercase and strip whitespace
+        normalized_msg = msg.lower().strip()
+
         # Handle greetings separately
-        if msg in ["hi", "hello", "hey", "good morning", "good evening"]:
+        greetings = ["hi", "hello", "hey", "good morning", "good evening"]
+        if any(normalized_msg.startswith(greet) for greet in greetings):
             return "Hello! I'm your medical assistant. How can I help you today?"
+
+        # Otherwise, use RAG chain
         response = rag_chain.invoke({"input": msg})
         print("RAG chain response:", response)
         answer = response.get("answer", "No answer returned.")
         print("Final answer:", answer)
         return str(answer)
+
     except Exception as e:
         print("Error in RAG chain:", e)
         return "Sorry, there was an error processing your request."
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080, debug=True)
